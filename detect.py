@@ -54,8 +54,8 @@ def main():
     parser.add_argument('--ip', type=str, help='IP @ of camera', default = '192.168.0.169')
     parser.add_argument('--port', type=str, help='Port # of camera stream', default = '8554')
     parser.add_argument('--path', type=str, help='Path to add after ip+port for camera stream', default = '/cam')
-    parser.add_argument('--droidcam', type=int, default=0)
-    parser.add_argument('--headless', type=int, default=1)
+    parser.add_argument('--droidcam', action='store_true', help='If enabled, it tries to use the ip @ from the --ip arg, to connect to an alternative camera stream, from port 4747')
+    parser.add_argument('--headless', action='store_false', help='If --headless is used, the script will not try to show the output on screen')
 
     args = parser.parse_args()
 
@@ -66,10 +66,14 @@ def main():
     inference_size = input_size(interpreter)
 
     phone = None
+    port = None
 
-    if args.droidcam == 1:
+    if args.droidcam:
         # Use phone stream
-        port = "4747"
+        if args.port!="8554":
+            port = args.port
+        else: 
+            port = "4747"
         ip = args.ip
         phone = "http://" + ip + ":" + port + "/video" 
 
@@ -110,7 +114,7 @@ def main():
         #forward stream test
         #output_stream.write(cv2_im)
         
-        if args.headless==0:
+        if args.headless:
             cv2.imshow('frame', cv2_im)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
